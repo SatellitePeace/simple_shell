@@ -1,98 +1,54 @@
-#ifndef SHELL_H
-#define SHELL_H
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
+#ifndef _SHELL_H_
+#define _SHELL_H_
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <limits.h>
 #include <sys/wait.h>
-#include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 
-#define EXEC 1
-#define MAXARGS 10
-#define DELIM " \t\n\r\a"
 
-extern char **environ;
+/*============     Shell_Init       ==============*/
 
-/**
- * struct cmd_t - shell env vars
- * @mode: determines the mode of execution
- * @args: the arguments to be executed
- * @ready: determines if the shell should run.
- * @status: the status of the last command executed.
- *
- * Description: Struct contain all shell vars.
- */
-typedef struct cmd_t
-{
-	int mode;
-	char **args;
-	int ready;
-	int status;
-	char **envar;
-} cmd_t;
+int main(int ac, char **av, char **env);
+void prompt(void);
+void handle(int signals);
+void _EOF(char *buffer);
+void shell_exit(char **command);
 
-void open_console(void);
-void init_cmd(cmd_t *cmd);
-void prompt(int status);
-void t_error(char *s);
-int _fork(void);
-void setcmd(char *buf, cmd_t *cmd);
-void *_realloc(void *ptr, size_t old_size, size_t new_size);
-void runcmd(char *dir, char **input, cmd_t *cmd);
-ssize_t _getline(char **line_ptr, size_t *n, FILE *stream);
-char *_strtok(char *strn, const char *delim);
-void handl_sigint(int sig);
-char *handl_comment(char *input);
-int execution(char** input, cmd_t *cmd);
-int check_dir_access(char **input, char* dir);
 
-/* ------------------ENVIRONMENT----------------- */
-char *_which(char *input);
-int _env(char **input);
-char *_getenv(const char *name);
+/*============     create_child       ==============*/
 
-/* ------------------BUILTINS----------------- */
-/**
- * struct builtins - struct contain func name
- * @name: name of the function
- * @f: function to be called when name is invoked
- *
- * Description: struct of func name and its respective func
- */
-typedef struct builtins
-{
-	char *name;
-	int (*f)(char **input);
-} built_t;
+void create_child(char **command, char *name, char **env, int cicles);
+int change_dir(const char *path);
 
-int parse_builtins(char **input, cmd_t *cmd);
-int exit_sh(char **input, cmd_t *cmd);
-int c_dir(char **input);
-/*---change directory----*/
-int cd_path(char *dir);
-int cd_parent(void);
-int cd_curr(void);
-int cd_back(void);
-int cd_home(void);
+/*============        Execute       ==============*/
 
-/* ------------------STRING PARSER----------------- */
-int _isdigit(const char *str);
-char **get_toks(char *args, char *delimiter);
-void str_reverse(char *s);
-char *_strdup(char *str);
-int _strcmp(char *str_a, char *str_b);
-char *_strcat(char *dest, char *src);
-int _strlen(char *s);
+void execute(char **command, char *name, char **env, int cicles);
+void print_env(char **env);
+char **_getPATH(char **env);
+void msgerror(char *name, int cicles, char **command);
+
+/*============          Tokening      ==============*/
+
+char **tokening(char *buffer, const char *s);
+
+
+/*============     Free Memory      ==============*/
+
+
+void free_dp(char **command);
+void free_exit(char **command);
+
+/*============  Auxiliar_Functions    ==============*/
+
+int _strcmp(char *s1, char *s2);
+unsigned int _strlen(char *s);
 char *_strcpy(char *dest, char *src);
 int _atoi(char *s);
-int is_cdir(char *path, int *i);
+char *_strcat(char *dest, char *src);
 
-/* ------------------MEMORY----------------- */
-void free_grid(char **grid, int height);
-void free_cmd(cmd_t *cmd);
-#endif /* SHELL_H */
+/*============ END      ==============*/
+
+#endif /* _SHELL_H_ */
